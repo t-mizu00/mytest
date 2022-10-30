@@ -1,0 +1,283 @@
+//import './App.css';
+import React, { useState, useEffect } from 'react';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+
+import { styled } from '@mui/material/styles';
+import Paper from '@mui/material/Paper';
+
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
+
+function App() {
+  // リストの選択項目のインデックス
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  // 新規追加アイテム
+  const [newItem, setNewItem] = useState('');
+  // イメージ
+  const [imageData, setImageData] = useState(null);
+  // ラジオボタンの選択値
+  const [radioItem, setRadioItem] = useState('existing');
+
+  // プルダウン選択値
+  const [menuItem, setMenuItem] = useState('001');
+  // プルダウン項目
+  const optList = [
+    {
+      id: '001',
+      name: 'ジャンル1'
+    },
+    {
+      id: '002',
+      name: 'ジャンル2'
+    },
+    {
+      id: '003',
+      name: 'ジャンル3'
+    },
+  ];
+
+  // リストボックス項目
+  const [newItemList, setNewItemList] = useState([
+    {
+      itemId: '',
+      itemName: '[商品を入力してください]',
+      itemOrder: 0,
+    },
+    {
+      itemId: '01',
+      itemName: '商品1',
+      itemOrder: 1,
+    },
+    {
+      itemId: '02',
+      itemName: '商品2',
+      itemOrder: 2,
+    },
+    {
+      itemId: '03',
+      itemName: '商品3',
+      itemOrder: 3,
+    }
+  ]);
+
+  // 初期処理
+  useEffect(() => {
+
+  },[]);
+
+  // 新規商品 入力処理
+  const onNewItemChange = (event) => {
+    setNewItem(event.target.value);
+
+    const itemList = [...newItemList];
+
+    for(let i = 0; i < itemList.length; i++) {
+      if(itemList[i].itemId === ''){
+          if(event.target.value === '') {
+            // 入力値が空の場合はデフォルト文字列を設定
+            itemList[i].itemName = '[商品を入力してください]';
+          } else {
+            // 入力値を商品リストに設定
+            itemList[i].itemName = event.target.value;
+          }
+      } 
+    }
+    // 表示用商品リストに設定
+    setNewItemList([...itemList]);
+  }
+
+  // ↑ボタン 押下処理
+  const onItemUp = () => {
+    if (selectedIndex > 0 ){
+      // 入力行を上に移動
+      const itemList = replaceArrayElements(newItemList,selectedIndex-1,selectedIndex);
+      setSelectedIndex(selectedIndex-1);
+
+      // 表示用商品リストに設定
+      setNewItemList([...itemList]);
+    }
+  }
+  const onItemDown = () => {
+    if (selectedIndex < newItemList.length -1 ){
+      // 入力行を下に移動
+      const itemList = replaceArrayElements(newItemList,selectedIndex+1,selectedIndex);
+      setSelectedIndex(selectedIndex+1);
+
+      // 表示用商品リストに設定
+      setNewItemList([...itemList]);
+    }
+  }
+
+  const onRadioChange = (event) => {
+    setRadioItem(event.target.value);
+    console.log(event.target.value);
+  }
+
+  // 配列を入れ替える
+  // array    対象配列
+  // targetId　入れ替え先
+  // sourceId　入れ替え元
+  const replaceArrayElements = (array, targetId, sourceId) => {
+    return array.reduce((resultArray, element, id, originalArray) => [
+        ...resultArray,
+        id === targetId ? originalArray[sourceId] :
+        id === sourceId ? originalArray[targetId] :
+        element
+    ], []);
+  }
+
+ // 選択ファイル変更時処理
+ const  onFileChange = (e) => {
+
+    const files = e.target.files
+
+    if(files.length > 0) {
+      // ファイルが選択された場合
+      let file = files[0]
+      let reader = new FileReader()
+      reader.onload = (e) => {
+        setImageData(e.target.result);
+      };
+      reader.readAsDataURL(file)
+    } else {
+      setImageData(null);
+    }
+
+}
+
+
+  // グリッドのスタイル？
+  const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  }));
+
+
+
+
+
+
+  return (
+    <div className="App">
+      <h1>Hello World!</h1>
+
+      <FormControl>
+      <FormLabel id="demo-radio-buttons-group-label">選択</FormLabel>
+      <RadioGroup
+        aria-labelledby="demo-radio-buttons-group-label"
+        defaultValue="existing"
+        name="radio-buttons-group"
+        value={radioItem}
+        onChange={onRadioChange}        
+      >
+        <FormControlLabel value="existing" control={<Radio />} label="既存" />
+        <FormControlLabel value="new" control={<Radio />} label="新規" />
+      </RadioGroup>
+    </FormControl>
+
+
+      <Box sx={{ minWidth: 120 }}>
+        <FormControl fullWidth>
+        <div>
+          <InputLabel id="demo-simple-select-label">Menu</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={menuItem}
+            label="Menu"
+            // onChange={handleChange}
+          >
+            {optList.map((item) => {
+              return (
+                <MenuItem value={item.id}>{item.name}</MenuItem>
+              )
+            })}
+          </Select>
+        </div>
+        </FormControl>
+      </Box>
+
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <Item>
+
+            <TextField id="new-item" label="新規" variant="outlined" onChange={onNewItemChange} value={newItem} />
+            <List component="nav" aria-label="main mailbox folders">
+            {newItemList.map((item) => {
+              return (
+                <ListItem
+                  selected={item.itemId === ''}
+                >
+                  <ListItemText primary={item.itemName} />
+                </ListItem>
+              )
+            })}
+            </List>
+          </Item>
+        </Grid>
+        <Grid item xs={6}>
+          <Item>
+              <Button variant="contained" onClick={onItemUp}>↑</Button>
+          </Item>
+          <Item>
+              <Button variant="contained" onClick={onItemDown}>↓</Button>
+          </Item>
+        </Grid>
+        <Grid item xs={12}>
+          <Item>xs=8</Item>
+        </Grid>
+      </Grid>
+
+      <Button
+        variant="contained"
+        component="label"
+      >
+        Upload File
+        <input type="file" style={{ display: "none" }} onChange={onFileChange} />
+      </Button>
+      <div>
+        <img src={imageData} />
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+
+
+たった2ステップ！React.js で選択画像をプレビューする方法（サンプルDL可） 2018/11
+https://blog.capilano-fw.com/?p=2574#i-7
+
+MaterialUIのTextFieldにinputタグのvalidationを適用する
+https://zenn.dev/enish/articles/5cc332d3eeb1a7
+
+react-modal
+https://www.npmjs.com/package/react-modal
+
+material-ui の Select の挙動まとめ
+https://blog.ojisan.io/mui-select
+  FormControl を使えば label と input 要素に同時にエラーなどの状態を知らせることができます。
+
+Material-UIでテキストフィールドをカスタマイズして実装する方法
+https://www.gaji.jp/blog/2020/12/07/5978/
+  ラベルが常に外側に表示されているテキストフィールドを作成
+
+  TextField コンポーネント自体が FormControl、 FormLabel、 OutlinedInputなどの
+  コンポーネントが組み合わさって構成されているため、それぞれを単体で使用することで
+  カスタマイズを行うことができます
